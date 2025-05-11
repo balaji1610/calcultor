@@ -1,8 +1,9 @@
 "use client";
 import style from "./page.module.scss";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/app/lib/store";
+import { evaluate } from "mathjs";
 import {
   addCalcultion,
   selectedButton,
@@ -24,30 +25,32 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
-    // This effect runs when the result changes
-    console.log(result);
-  }, [result]);
-
-  const handleOnClick = (value: string) => {
-    switch (value) {
-      case "B":
-        dispatch(backSpace());
-        break;
-      case "=":
-        try {
-          dispatch(addCalcultion(eval(result)));
-        } catch (e) {
-          console.error("Invalid expression", e);
-        }
-        break;
-      case "c":
-        dispatch(clear());
-        break;
-      default:
-        dispatch(selectedButton(value));
-    }
-  };
+  // useEffect(() => {
+  //   // This effect runs when the result changes
+  //   console.log(result);
+  // }, [result]);
+  const handleOnClick = useCallback(
+    (value: string) => {
+      switch (value) {
+        case "B":
+          dispatch(backSpace());
+          break;
+        case "=":
+          try {
+            dispatch(addCalcultion(evaluate(result))); // safer than eval
+          } catch (e) {
+            console.error("Invalid expression", e);
+          }
+          break;
+        case "c":
+          dispatch(clear());
+          break;
+        default:
+          dispatch(selectedButton(value));
+      }
+    },
+    [dispatch, result]
+  );
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       const key = e.key;
@@ -57,7 +60,8 @@ export default function Home() {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [numbers, result]);
+  }, [numbers, result, handleOnClick]);
+
   //   To get the updated result after each dispatch, you need to understand that:
 
   // ✅ State updates in Redux are asynchronous, so the result from useSelector won't update immediately after a dispatch.
