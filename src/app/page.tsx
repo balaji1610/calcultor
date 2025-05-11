@@ -48,12 +48,23 @@ export default function Home() {
         dispatch(selectedButton(value));
     }
   };
+
+  //   To get the updated result after each dispatch, you need to understand that:
+
+  // ✅ State updates in Redux are asynchronous, so the result from useSelector won't update immediately after a dispatch.
+  // Instead, the component will re-render with the new result once the state updates.
   return (
     <div>
       <div className={style.parent}>
         <div className={style.calculator}>
           <div className={style.display}>
-            <input type="text" className={style.input} defaultValue={result} />
+            <form>
+              <input
+                type="text"
+                className={style.input}
+                defaultValue={result}
+              />
+            </form>
           </div>
           <div className={style.buttons}>
             {numbers.map((item, index) => (
