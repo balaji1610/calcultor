@@ -48,7 +48,16 @@ export default function Home() {
         dispatch(selectedButton(value));
     }
   };
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const key = e.key;
 
+      if (key.toLowerCase() === "c") handleOnClick("c");
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [numbers, result]);
   //   To get the updated result after each dispatch, you need to understand that:
 
   // ✅ State updates in Redux are asynchronous, so the result from useSelector won't update immediately after a dispatch.
@@ -62,7 +71,8 @@ export default function Home() {
               <input
                 type="text"
                 className={style.input}
-                defaultValue={result}
+                value={result}
+                readOnly
               />
             </form>
           </div>
