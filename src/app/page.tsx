@@ -1,30 +1,21 @@
 "use client";
 import style from "./page.module.scss";
 import React, { useEffect, useRef } from "react";
-
-const number = [
-  "c",
-  "<-",
-  "%",
-  "/",
-  "7",
-  "8",
-  "9",
-  "*",
-  " 4",
-  "5",
-  "6",
-  "+",
-  "1",
-  "2",
-  "3",
-  "-",
-  "0",
-  ".",
-  "=",
-];
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/app/lib/store";
+import {
+  addCalcultion,
+  selectedButton,
+  backSpace,
+  clear,
+} from "@/app/slice/calcultorSlice";
 
 export default function Home() {
+  const numbers = useSelector(
+    (state: RootState) => state.calcultor.displaynumbers
+  );
+  const result = useSelector((state: RootState) => state.calcultor.result);
+  const dispatch = useDispatch();
   const ref = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     const input = ref.current;
@@ -32,16 +23,45 @@ export default function Home() {
       input.focus();
     }
   }, []);
+
+  useEffect(() => {
+    // This effect runs when the result changes
+    console.log(result);
+  }, [result]);
+
+  const handleOnClick = (value: string) => {
+    switch (value) {
+      case "B":
+        dispatch(backSpace());
+        break;
+      case "=":
+        try {
+          dispatch(addCalcultion(eval(result)));
+        } catch (e) {
+          console.error("Invalid expression", e);
+        }
+        break;
+      case "c":
+        dispatch(clear());
+        break;
+      default:
+        dispatch(selectedButton(value));
+    }
+  };
   return (
     <div>
       <div className={style.parent}>
         <div className={style.calculator}>
           <div className={style.display}>
-            <input type="text" className={style.input} />
+            <input type="text" className={style.input} defaultValue={result} />
           </div>
           <div className={style.buttons}>
-            {number.map((item, index) => (
-              <button key={index} className={style.button}>
+            {numbers.map((item, index) => (
+              <button
+                key={index}
+                className={style.button}
+                onClick={() => handleOnClick(item)}
+              >
                 {item}
               </button>
             ))}
